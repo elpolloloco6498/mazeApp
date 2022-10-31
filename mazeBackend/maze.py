@@ -2,11 +2,11 @@ from random import randint
 
 # BACKEND
     # generate maze OK
-    # TODO generated maze with custom inputs
-    # TODO random maze entry
+    # generated maze with custom inputs
+    # random maze entry
     # TODO reformat to simplify the code
     # return the maze as a JSON document OK
-    # TODO call the maze api and display the maze
+    # call the maze api and display the maze
     # TODO write unittest for backend
 
 # FRONTEND
@@ -36,8 +36,20 @@ class Grid:
 class Maze(Grid):
     def __init__(self, rows, cols):
         super().__init__(rows, cols)
-        self.entry = Cell(self.cols//2, 0)
-        self.exit = Cell(self.cols//2, self.rows-1)
+        self.entry = self.entryCell()
+        self.entry.visited = True
+        self.entry.removeNorth()
+        self.exit = self.exitCell()
+        self.exit.removeSouth()
+        self.solve = []
+
+    def entryCell(self):
+        index = self.index(self.cols//2, 0)
+        return self.cells[index]
+
+    def exitCell(self):
+        index = self.index(self.cols // 2, self.rows - 1)
+        return self.cells[index]
 
     def cellOnBorder(self, cell):
         i, j = cell.i, cell.j
@@ -74,22 +86,21 @@ class Maze(Grid):
         self.stack.append(cell)"""
 
     def removeWall(self, cellA, cellB):
-        # TODO use setters of walls
         x = cellA.i - cellB.i
         if x == 1: # cell b on the left
-            cellA.walls[1] = False # delete west wall
-            cellB.walls[3] = False # delete east wall
+            cellA.removeWest() # delete west wall
+            cellB.removeEast() # delete east wall
         elif x == -1: # cell b on the right
-            cellA.walls[3] = False # delete east wall
-            cellB.walls[1] = False # delete west wall
+            cellA.removeEast() # delete east wall
+            cellB.removeWest() # delete west wall
 
         y = cellA.j - cellB.j
         if y == 1:  # cell b on the top
-            cellA.walls[0] = False # delete northern wall
-            cellB.walls[2] = False # delete southern wall
+            cellA.removeNorth() # delete northern wall
+            cellB.removeSouth() # delete southern wall
         elif y == -1:  # cell b on the bottom
-            cellA.walls[2] = False # delete southern wall
-            cellB.walls[0] = False # delete northern wall
+            cellA.removeSouth() # delete southern wall
+            cellB.removeNorth() # delete northern wall
 
     def getAdjacents(self, cell):
         adjacents = []
@@ -97,50 +108,48 @@ class Maze(Grid):
         indexAdjacents = [self.index(i, j-1), self.index(i-1, j), self.index(i, j+1), self.index(i+1, j)]
         for id in indexAdjacents:
             if id != -1:
-                adjacents.append(id)
+                adjacents.append(self.cells[id])
         return adjacents
 
     def getAdjacentsNotVisited(self, cell):
         adjacents = self.getAdjacents(cell)
-        return [id for id in adjacents if not self.cells[id].visited]
+        return [cell for cell in adjacents if not cell.visited]
+
+    def getRandAdjacentNotVisited(self, cell):
+        adjacents = self.getAdjacentsNotVisited(cell)
+        if adjacents:
+            return adjacents[randint(0, len(adjacents)-1)]
+        else:
+             return None
 
     def generateMaze(self):
-        stack = [self.entry]
+        stack = list()
+        stack.append(self.entry)
         visited = 1
-        while stack != [] and visited != len(self.cells):
-            parentCell = stack[-1] # get last cell on the stack
-            adjancentCells = self.getAdjacentsNotVisited(parentCell)
-            if adjancentCells:
-                cellId = adjancentCells[randint(0, len(adjancentCells)-1)]
-                currentCell = self.cells[cellId]
-                # remove wall between old cell and new cell
-                self.removeWall(self.cells[self.indexCell(parentCell)], self.cells[cellId])
-                # mark the cell as visited
-                self.cells[cellId].visited = True
-                # add the cell to the stack
-                stack.append(self.cells[cellId])
+        while stack:
+            current = stack[-1] # get last cell on the stack
+            adjacentCell = self.getRandAdjacentNotVisited(current)
+            if adjacentCell:
+                self.removeWall(current, adjacentCell) # remove wall between old cell and new cell
+                adjacentCell.visited = True # mark the cell as visited
+                stack.append(adjacentCell) # add the cell to the stack
+                if adjacentCell == self.exit and not self.solve: # when we found the exit we remember the path
+                    print("path found !")
+                    self.solve = stack.copy()
                 visited += 1
             else: # backtrack in the stack
-                currentCell = stack.pop(-1) # removes the last element of the stack that doesn't have adjacent cells
+                stack.pop(-1) # removes the last element of the stack that doesn't have adjacent cells
 
     def toJSON(self):
         listFormattedCells = []
         mazeData = {
             "cols": self.cols,
             "rows": self.rows,
+            "entry": self.entry.toJSON(),
+            "exit": self.exit.toJSON(),
+            "solve": [cell.toJSON() for cell in self.solve],
+            "cells": [cell.toJSON() for cell in self.cells]
         }
-        for cell in self.cells:
-            listFormattedCells.append({
-                "i": cell.i,
-                "j": cell.j,
-                "walls": {
-                    "N": 1 if cell.northWall else 0,
-                    "W": 1 if cell.westWall else 0,
-                    "S": 1 if cell.southWall else 0,
-                    "E": 1 if cell.eastWall else 0
-                }
-            })
-        mazeData["cells"] = listFormattedCells
         return mazeData
 
 class Cell:
@@ -150,12 +159,24 @@ class Cell:
         self.i = i
         self.j = j
         # walls : [north, west, south, east]
-        self.walls = [True, True, True, True]
+        self.walls = [1, 1, 1, 1]
         self.visited = False
 
     def __repr__(self):
         return f"({self.i}, {self.j})\n"\
         f"north:{self.northWall} west:{self.westWall} south:{self.southWall} east:{self.eastWall}\n"
+
+    def toJSON(self):
+        return {
+            "i": self.i,
+            "j": self.j,
+            "walls": {
+                "N": self.northWall,
+                "W": self.westWall,
+                "S": self.southWall,
+                "E": self.eastWall
+            }
+        }
 
     @property
     def northWall(self):
@@ -169,5 +190,14 @@ class Cell:
     @property
     def eastWall(self):
         return self.walls[3]
+
+    def removeNorth(self):
+        self.walls[0] = 0
+    def removeWest(self):
+        self.walls[1] = 0
+    def removeSouth(self):
+        self.walls[2] = 0
+    def removeEast(self):
+        self.walls[3] = 0
 
     # TODO creates setters for walls
