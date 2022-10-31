@@ -16,7 +16,7 @@ from random import randint
     # TODO add a form to send additional data to the API
 
 class Grid:
-    def __init__(self, rows, cols):
+    def __init__(self, cols, rows):
         self.rows = rows
         self.cols = cols
         self.cells = []
@@ -26,7 +26,7 @@ class Grid:
                 self.cells.append(Cell(i, j))
 
     def index(self, i, j):
-        if (i < 0 or i > self.cols-1 or j < 0 or j > self.rows-1):
+        if i < 0 or i > self.cols-1 or j < 0 or j > self.rows-1:
             return -1
         return j*self.cols + i
 
@@ -36,17 +36,45 @@ class Grid:
 class Maze(Grid):
     def __init__(self, rows, cols):
         super().__init__(rows, cols)
-        # TODO choose a random starting cell on the edge
-        # for now we use the top left corner
-        self.stack = [self.cells[0]] # for backtracking
-        self.visited = 1 # contains visited cell of the maze
-        self.cells[0].visited = True
+        self.entry = Cell(self.cols//2, 0)
+        self.exit = Cell(self.cols//2, self.rows-1)
 
-    @property
-    def allCellsVisited(self):
-        return self.visited == len(self.cells)
+    def cellOnBorder(self, cell):
+        i, j = cell.i, cell.j
+        return (j == 0 or j == self.rows-1) or (i == 0 or i == self.cols-1)
+
+    """def initMazeEntry(self):
+        # the entry of the maze is on the border
+        border_cells = list(filter(self.cellOnBorder, self.cells))
+        cell = border_cells[randint(0, len(border_cells)-1)]
+        cell.visited = True
+        # delete entry wall
+        possible_entry_walls = []
+        if cell.i == 0:
+            possible_entry_walls.append("W")
+        if cell.i == self.cols-1:
+            possible_entry_walls.append("E")
+        if cell.j == 0:
+            possible_entry_walls.append("N")
+        if cell.j == self.rows - 1:
+            possible_entry_walls.append("S")
+
+        randnb = 0 if len(possible_entry_walls) == 0 else randint(0, len(possible_entry_walls)-1)
+        wall_to_delete = possible_entry_walls[randnb]
+        if wall_to_delete == "N":
+            cell.walls[0] = False
+        if wall_to_delete == "W":
+            cell.walls[1] = False
+        if wall_to_delete == "S":
+            cell.walls[2] = False
+        if wall_to_delete == "E":
+            cell.walls[3] = False
+        # update data structure
+        self.visited += 1
+        self.stack.append(cell)"""
 
     def removeWall(self, cellA, cellB):
+        # TODO use setters of walls
         x = cellA.i - cellB.i
         if x == 1: # cell b on the left
             cellA.walls[1] = False # delete west wall
@@ -77,8 +105,10 @@ class Maze(Grid):
         return [id for id in adjacents if not self.cells[id].visited]
 
     def generateMaze(self):
-        while self.stack != [] and not self.allCellsVisited:
-            parentCell = self.stack[-1] # get last cell on the stack
+        stack = [self.entry]
+        visited = 1
+        while stack != [] and visited != len(self.cells):
+            parentCell = stack[-1] # get last cell on the stack
             adjancentCells = self.getAdjacentsNotVisited(parentCell)
             if adjancentCells:
                 cellId = adjancentCells[randint(0, len(adjancentCells)-1)]
@@ -88,10 +118,10 @@ class Maze(Grid):
                 # mark the cell as visited
                 self.cells[cellId].visited = True
                 # add the cell to the stack
-                self.stack.append(self.cells[cellId])
-                self.visited += 1
+                stack.append(self.cells[cellId])
+                visited += 1
             else: # backtrack in the stack
-                currentCell = self.stack.pop(-1) # removes the last element of the stack that doesn't have adjacent cells
+                currentCell = stack.pop(-1) # removes the last element of the stack that doesn't have adjacent cells
 
     def toJSON(self):
         listFormattedCells = []
@@ -104,10 +134,10 @@ class Maze(Grid):
                 "i": cell.i,
                 "j": cell.j,
                 "walls": {
-                    "north": cell.northWall,
-                    "west": cell.westWall,
-                    "south": cell.southWall,
-                    "east": cell.eastWall
+                    "N": 1 if cell.northWall else 0,
+                    "W": 1 if cell.westWall else 0,
+                    "S": 1 if cell.southWall else 0,
+                    "E": 1 if cell.eastWall else 0
                 }
             })
         mazeData["cells"] = listFormattedCells
@@ -139,3 +169,5 @@ class Cell:
     @property
     def eastWall(self):
         return self.walls[3]
+
+    # TODO creates setters for walls
