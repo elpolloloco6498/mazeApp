@@ -311,6 +311,7 @@ Once that is done you have access to two files: mazeFrontend & mazeBackend.\
 ### Setup the frontend
 Navigate to the frontend folder
 ```
+cd mazeApp
 cd ./mazeFrontend
 ```
 You need to install all the necessary dependencies.\
