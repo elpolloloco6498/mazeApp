@@ -5,7 +5,302 @@ Maze app is a simple angular web application.
 The goal of this project is to do something similar to https://www.mazegenerator.net but in a simpler version.\
 The maze has to be generated on a backend server. We will use an api to make the frontend and backend part communicate.\
 I have use AngularJs for the frontend of the application and Flask for the backend.\
-The maze is displayed using D3.js which is a data driven visualizer. I used it to display the cells of the maze\
+The maze is displayed using D3.js which is a data driven visualizer. I used it to display the cells of the maze
+
+The behavior is simple, the frontend will send an api request to the backend server which will generate a maze and return a json document containing the necessary information for plotting the maze in d3.js\
+
+The json format returned by the api is the following:\
+This is an example for width=4 and height=4\
+```
+{
+    "cells": [
+        {
+            "i": 0,
+            "j": 0,
+            "walls": {
+                "E": 0,
+                "N": 1,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 1,
+            "j": 0,
+            "walls": {
+                "E": 1,
+                "N": 1,
+                "S": 1,
+                "W": 0
+            }
+        },
+        {
+            "i": 2,
+            "j": 0,
+            "walls": {
+                "E": 1,
+                "N": 0,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 3,
+            "j": 0,
+            "walls": {
+                "E": 1,
+                "N": 1,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 0,
+            "j": 1,
+            "walls": {
+                "E": 0,
+                "N": 0,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 1,
+            "j": 1,
+            "walls": {
+                "E": 1,
+                "N": 1,
+                "S": 0,
+                "W": 0
+            }
+        },
+        {
+            "i": 2,
+            "j": 1,
+            "walls": {
+                "E": 1,
+                "N": 0,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 3,
+            "j": 1,
+            "walls": {
+                "E": 1,
+                "N": 0,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 0,
+            "j": 2,
+            "walls": {
+                "E": 1,
+                "N": 0,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 1,
+            "j": 2,
+            "walls": {
+                "E": 0,
+                "N": 0,
+                "S": 1,
+                "W": 1
+            }
+        },
+        {
+            "i": 2,
+            "j": 2,
+            "walls": {
+                "E": 1,
+                "N": 0,
+                "S": 1,
+                "W": 0
+            }
+        },
+        {
+            "i": 3,
+            "j": 2,
+            "walls": {
+                "E": 1,
+                "N": 0,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 0,
+            "j": 3,
+            "walls": {
+                "E": 0,
+                "N": 0,
+                "S": 1,
+                "W": 1
+            }
+        },
+        {
+            "i": 1,
+            "j": 3,
+            "walls": {
+                "E": 0,
+                "N": 1,
+                "S": 1,
+                "W": 0
+            }
+        },
+        {
+            "i": 2,
+            "j": 3,
+            "walls": {
+                "E": 0,
+                "N": 1,
+                "S": 0,
+                "W": 0
+            }
+        },
+        {
+            "i": 3,
+            "j": 3,
+            "walls": {
+                "E": 1,
+                "N": 0,
+                "S": 1,
+                "W": 0
+            }
+        }
+    ],
+    "cols": 4,
+    "entry": {
+        "i": 2,
+        "j": 0,
+        "walls": {
+            "E": 1,
+            "N": 0,
+            "S": 0,
+            "W": 1
+        }
+    },
+    "exit": {
+        "i": 2,
+        "j": 3,
+        "walls": {
+            "E": 0,
+            "N": 1,
+            "S": 0,
+            "W": 0
+        }
+    },
+    "rows": 4,
+    "solve": [
+        {
+            "i": 2,
+            "j": 0,
+            "walls": {
+                "E": 1,
+                "N": 0,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 2,
+            "j": 1,
+            "walls": {
+                "E": 1,
+                "N": 0,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 2,
+            "j": 2,
+            "walls": {
+                "E": 1,
+                "N": 0,
+                "S": 1,
+                "W": 0
+            }
+        },
+        {
+            "i": 1,
+            "j": 2,
+            "walls": {
+                "E": 0,
+                "N": 0,
+                "S": 1,
+                "W": 1
+            }
+        },
+        {
+            "i": 1,
+            "j": 1,
+            "walls": {
+                "E": 1,
+                "N": 1,
+                "S": 0,
+                "W": 0
+            }
+        },
+        {
+            "i": 0,
+            "j": 1,
+            "walls": {
+                "E": 0,
+                "N": 0,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 0,
+            "j": 2,
+            "walls": {
+                "E": 1,
+                "N": 0,
+                "S": 0,
+                "W": 1
+            }
+        },
+        {
+            "i": 0,
+            "j": 3,
+            "walls": {
+                "E": 0,
+                "N": 0,
+                "S": 1,
+                "W": 1
+            }
+        },
+        {
+            "i": 1,
+            "j": 3,
+            "walls": {
+                "E": 0,
+                "N": 1,
+                "S": 1,
+                "W": 0
+            }
+        },
+        {
+            "i": 2,
+            "j": 3,
+            "walls": {
+                "E": 0,
+                "N": 1,
+                "S": 0,
+                "W": 0
+            }
+        }
+    ]
+}
+```
 
 ## Setup of the application``
 Start by cloning the project in a directory that you see fit.\
