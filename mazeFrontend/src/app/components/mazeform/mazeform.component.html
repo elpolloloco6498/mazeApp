@@ -1,0 +1,11 @@
+<div class="maze-form text-center mx-auto">
+    <form [formGroup]="mazeForm" (change)="updateFormData()" (ngSubmit)="emitSubmitEvent()">
+        <label for="fname">Width : </label>
+        <input class="input-dimension" type="number" id="input-maze-width" name="maze-width" formControlName="width" min="2" max="100"><br>
+        <label for="lname">Height : </label>
+        <input class="input-dimension" type="number" id="input-maze-height" name="maze-height" formControlName="height" min="2" max="100"><br>
+        <label for="solution">plot solution : </label>
+        <input type="checkbox" name="solution" formControlName="solution"/><br>
+        <input class="btn btn-primary" type="submit" value="Generate"/>
+    </form>
+</div>

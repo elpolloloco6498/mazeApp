@@ -1,0 +1,8 @@
+<div class="container">
+  <!--title-->
+  <h1 class="text-center">Maze generator</h1>
+  <!--maze form-->
+  <app-mazeform (data)="handleUpdateForm($event)" (submitForm)="handleSubmit()"></app-mazeform>
+  <!--maze display-->
+  <app-mazedisplay [dataMaze]="mazeData" [solution]="formData.solution"></app-mazedisplay>
+</div>

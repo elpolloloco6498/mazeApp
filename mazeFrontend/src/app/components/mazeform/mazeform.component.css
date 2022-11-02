@@ -1,0 +1,20 @@
+.maze-form {
+    background-color: aqua;
+    padding: 20px;
+    width: 800px;
+}
+
+.btn-generate {
+    margin: auto;
+}
+
+input {
+    margin-left: 5px;
+    margin-top: 10px;
+}
+
+.input-dimension{
+    margin-left: 10px;
+    border: 1px solid black;
+    border-radius: 5%;
+}
