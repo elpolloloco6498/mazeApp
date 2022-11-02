@@ -9,25 +9,25 @@ The maze is displayed using D3.js which is a data driven visualizer. I used it t
 
 ## Setup of the application``
 Start by cloning the project in a directory that you see fit.\
-`git clone https://github.com/elpolloloco6498/mazeApp.git`\
+```git clone https://github.com/elpolloloco6498/mazeApp.git```\
 Once that is done you have access to two files: mazeFrontend & mazeBackend.\
 ### Setup the frontend
 Navigate to the frontend folder `cd ./mazeFrontend`\
 You need to install all the necessary dependencies.\
 Make sure npm is installed on your machine.\
-`npm install`
+```npm install```
 To run the program execute the following command\
-`npm start`
+```npm start```
 ### Setup the backend
 Now that the frontend is ready we need to setup the backend.\
-`cd ../mazeBackend`
+```cd ../mazeBackend```
 You will need Python 3.x to run this program.\
 Install the following dependencies:\
 ```
 pip install flask, flask_cors
 ```
 To start the server in developement mode type:\
-`python -m flask --app mazeApi run`\
+```python -m flask --app mazeApi run```
 
 The API is now available at : http://localhost:5000
 
